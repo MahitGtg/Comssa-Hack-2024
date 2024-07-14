@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Madagascar Map</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .map-container {
+            position: relative;
+        }
+
+        .map {
+            width: 100%;
+            height: auto;
+        }
+
+        .clickable {
+            position: absolute;
+            cursor: pointer;
+            border: 2px solid black;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        .clickable:hover {
+            transform: scale(1.1);
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .yellow-line {
+            top: 35%;
+            left: 58%;
+            width: 2.5%;
+            height: 41%;
+            background-color: rgba(255, 255, 0, 0.5);
+            transform: rotate(30deg);
+        }
+
+        .red-line {
+            top: 73%;
+            left: 51%;
+            width: 2.5%;
+            height: 12%;
+            background-color: rgba(255, 0, 0, 0.5);
+            transform: rotate(30deg);
+        }
+
+        .yellow-triangle, .yellow-triangle-2, .yellow-triangle-3 {
+            width: 3%;
+            height: 3%;
+            background-color: rgba(255, 255, 0, 0.5);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .yellow-triangle {
+            top: 14%;
+            left: 62%;
+        }
+
+        .yellow-triangle-2 {
+            top: 45%;
+            left: 55%; /* Adjust position as needed */
+        }
+
+        .yellow-triangle-3 {
+            top: 65%;
+            left: 40%; /* Adjust position as needed */
+        }
+
+        .red-triangle {
+            top: 50%;
+            left: 50%;
+            width: 3%;
+            height: 3%;
+            background-color: rgba(255, 0, 0, 0.5);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .popup {
+            display: none;
+            position: absolute;
+            border: 1px solid #000;
+            background-color: #fff;
+            padding: 10px;
+            z-index: 10;
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .popup img {
+            width: 200px;
+            height: auto;
+        }
+
+        .popup.active {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .yellow-line-popup img {
+            width: 500px; /* Adjust width as needed */
+            height: auto;
+        }
+
+        .fund-me {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background-color: red;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .fund-me:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+    <div class="map-container">
+        <img src="Madagascar Map 2024-07-13.webp" alt="Madagascar Map" class="map" id="main-map">
+        <div class="clickable yellow-line" data-popup="yellow-line-popup"></div>
+        <div class="clickable red-line" data-popup="red-line-popup"></div>
+        <div class="clickable yellow-triangle" data-popup="yellow-triangle-popup"></div>
+        <div class="clickable red-triangle" data-popup="red-triangle-popup"></div>
+        <div class="clickable yellow-triangle-2" data-popup="yellow-triangle-2-popup"></div>
+        <div class="clickable yellow-triangle-3" data-popup="yellow-triangle-3-popup"></div>
+
+        <div class="popup yellow-line-popup">
+            <h3>Floating Solar</h3>
+            <img src="floating solar.png" alt="Floating Solar Image">
+        </div>
+        <div class="popup red-line-popup">
+            <h3>Tidal Energy</h3>
+            <img src="tidal_energy.png" alt="Tidal Energy Image">
+        </div>
+        <div class="popup yellow-triangle-popup">
+            <img src="rooftop_solar.png" alt="Yellow Triangle Image 1">
+        </div>
+        <div class="popup yellow-triangle-2-popup">
+            <img src="rooftop_solar.png" alt="Yellow Triangle Image 2">
+        </div>
+        <div class="popup yellow-triangle-3-popup">
+            <img src="rooftop_solar.png" alt="Yellow Triangle Image 3">
+        </div>
+        <div class="popup red-triangle-popup">
+            <img src="hydropump.png" alt="Red Triangle Image">
+        </div>
+
+        <button class="fund-me">Fund Me</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const clickables = document.querySelectorAll('.clickable');
+            const popups = document.querySelectorAll('.popup');
+
+            clickables.forEach(clickable => {
+                clickable.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    const popupClass = this.getAttribute('data-popup');
+                    const popup = document.querySelector(`.${popupClass}`);
+                    const rect = clickable.getBoundingClientRect();
+                    if (popupClass === 'red-line-popup') {
+                        popup.style.top = `${rect.top + window.scrollY - rect.height / 2}px`; // Adjust position upwards
+                    } else {
+                        popup.style.top = `${rect.top + window.scrollY + rect.height / 2}px`;
+                    }
+                    popup.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
+                    hideAllPopups();
+                    togglePopup(popupClass);
+                });
+            });
+
+            document.addEventListener('click', function() {
+                hideAllPopups();
+            });
+
+            function togglePopup(popupClass) {
+                const popup = document.querySelector(`.${popupClass}`);
+                if (popup) {
+                    if (popup.classList.contains('active')) {
+                        popup.classList.remove('active');
+                    } else {
+                        popup.classList.add('active');
+                    }
+                }
+            }
+
+            function hideAllPopups() {
+                popups.forEach(popup => {
+                    popup.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
